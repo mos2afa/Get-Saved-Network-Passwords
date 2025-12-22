@@ -57,6 +57,7 @@
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             AutoScroll = true;
+            BackColor = Color.Black;
             ClientSize = new Size(581, 668);
             Controls.Add(dgvNetworkProfiles);
             FormBorderStyle = FormBorderStyle.Fixed3D;

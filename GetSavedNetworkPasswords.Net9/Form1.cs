@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.VisualBasic;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -6,6 +7,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Runtime;
+using System.Runtime.InteropServices.JavaScript;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -29,14 +31,30 @@ namespace Get_Saved_Network_Passwords
 
             dgvNetworkProfiles.RowHeadersVisible = false;
             dgvNetworkProfiles.EnableHeadersVisualStyles = false;
-            dgvNetworkProfiles.ColumnHeadersDefaultCellStyle.BackColor = Color.Black;
-            dgvNetworkProfiles.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
+
 
             dgvNetworkProfiles.Font = new Font(dgvNetworkProfiles.Font.FontFamily, 20);
+            
+
+            dgvNetworkProfiles.GridColor = BackColor;
+            dgvNetworkProfiles.ForeColor = Color.DodgerBlue;
+            dgvNetworkProfiles.BackgroundColor = BackColor;
+
+            dgvNetworkProfiles.ColumnHeadersDefaultCellStyle.Alignment =
+                DataGridViewContentAlignment.MiddleCenter;
+
+            dgvNetworkProfiles.DefaultCellStyle.Alignment =
+                DataGridViewContentAlignment.MiddleCenter;
 
 
-            dgvNetworkProfiles.RowsDefaultCellStyle.BackColor = Color.White;
-            dgvNetworkProfiles.AlternatingRowsDefaultCellStyle.BackColor = Color.LightGray;
+            dgvNetworkProfiles.ColumnHeadersDefaultCellStyle.BackColor = BackColor;
+            dgvNetworkProfiles.ColumnHeadersDefaultCellStyle.ForeColor = Color.DeepPink;
+
+            dgvNetworkProfiles.RowHeadersDefaultCellStyle.BackColor = BackColor;
+            dgvNetworkProfiles.RowHeadersDefaultCellStyle.ForeColor = Color.DodgerBlue;
+
+            dgvNetworkProfiles.RowsDefaultCellStyle.BackColor = BackColor;
+            dgvNetworkProfiles.AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(1, 3, 70);
 
             dgvNetworkProfiles.ClearSelection();
         }
