@@ -28,31 +28,45 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.dgvNetworkProfiles = new System.Windows.Forms.DataGridView();
-            ((System.ComponentModel.ISupportInitialize)(this.dgvNetworkProfiles)).BeginInit();
-            this.SuspendLayout();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
+            dgvNetworkProfiles = new DataGridView();
+            ((System.ComponentModel.ISupportInitialize)dgvNetworkProfiles).BeginInit();
+            SuspendLayout();
             // 
             // dgvNetworkProfiles
             // 
-            this.dgvNetworkProfiles.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dgvNetworkProfiles.Location = new System.Drawing.Point(27, 22);
-            this.dgvNetworkProfiles.Name = "dgvNetworkProfiles";
-            this.dgvNetworkProfiles.RowHeadersWidth = 51;
-            this.dgvNetworkProfiles.RowTemplate.Height = 24;
-            this.dgvNetworkProfiles.Size = new System.Drawing.Size(1181, 615);
-            this.dgvNetworkProfiles.TabIndex = 0;
+            dgvNetworkProfiles.AllowUserToAddRows = false;
+            dgvNetworkProfiles.AllowUserToDeleteRows = false;
+            dgvNetworkProfiles.AllowUserToOrderColumns = true;
+            dgvNetworkProfiles.BackgroundColor = Color.White;
+            dgvNetworkProfiles.ClipboardCopyMode = DataGridViewClipboardCopyMode.Disable;
+            dgvNetworkProfiles.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            dgvNetworkProfiles.Dock = DockStyle.Fill;
+            dgvNetworkProfiles.GridColor = Color.White;
+            dgvNetworkProfiles.Location = new Point(0, 0);
+            dgvNetworkProfiles.Margin = new Padding(3, 4, 3, 4);
+            dgvNetworkProfiles.Name = "dgvNetworkProfiles";
+            dgvNetworkProfiles.ReadOnly = true;
+            dgvNetworkProfiles.RowHeadersWidth = 51;
+            dgvNetworkProfiles.RowTemplate.Height = 24;
+            dgvNetworkProfiles.Size = new Size(581, 668);
+            dgvNetworkProfiles.TabIndex = 0;
             // 
             // Form1
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1230, 649);
-            this.Controls.Add(this.dgvNetworkProfiles);
-            this.Name = "Form1";
-            this.Text = "Form1";
-            this.Load += new System.EventHandler(this.Form1_Load);
-            ((System.ComponentModel.ISupportInitialize)(this.dgvNetworkProfiles)).EndInit();
-            this.ResumeLayout(false);
+            AutoScaleDimensions = new SizeF(8F, 20F);
+            AutoScaleMode = AutoScaleMode.Font;
+            AutoScroll = true;
+            ClientSize = new Size(581, 668);
+            Controls.Add(dgvNetworkProfiles);
+            FormBorderStyle = FormBorderStyle.Fixed3D;
+            Icon = (Icon)resources.GetObject("$this.Icon");
+            Margin = new Padding(3, 4, 3, 4);
+            Name = "Form1";
+            Text = "Network Profiles";
+            Load += Form1_Load;
+            ((System.ComponentModel.ISupportInitialize)dgvNetworkProfiles).EndInit();
+            ResumeLayout(false);
 
         }
 

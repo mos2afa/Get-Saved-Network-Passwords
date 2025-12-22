@@ -27,8 +27,18 @@ namespace Get_Saved_Network_Passwords
             List<Network.Profile> profiles = Network.GetNetworkProfiles();
             dgvNetworkProfiles.DataSource = profiles;
 
-            dgvNetworkProfiles.Font = new Font(dgvNetworkProfiles.Font.FontFamily, 16);
+            dgvNetworkProfiles.RowHeadersVisible = false;
+            dgvNetworkProfiles.EnableHeadersVisualStyles = false;
+            dgvNetworkProfiles.ColumnHeadersDefaultCellStyle.BackColor = Color.Black;
+            dgvNetworkProfiles.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
 
+            dgvNetworkProfiles.Font = new Font(dgvNetworkProfiles.Font.FontFamily, 20);
+
+
+            dgvNetworkProfiles.RowsDefaultCellStyle.BackColor = Color.White;
+            dgvNetworkProfiles.AlternatingRowsDefaultCellStyle.BackColor = Color.LightGray;
+
+            dgvNetworkProfiles.ClearSelection();
         }
     }
 
