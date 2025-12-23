@@ -62,22 +62,6 @@ namespace Get_Saved_Network_Passwords
             this.Activate();
         }
 
-        private void dgvNetworkProfiles_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
-        {
-            if (e.RowIndex < 0) return; // header
-
-            if (e.ColumnIndex == 0) return;// name
-
-            string SSID = (string)dgvNetworkProfiles.Rows[e.RowIndex].Cells[0].Value!;
-
-            SSID = SSID.Trim();
-
-            NetworkProfile profile = Network.GetNetworkProfile(SSID);
-
-            pictureBox1.Image = QR.GenerateQRImage(profile);
-            panel1.Show();
-        }
-
         private void pictureBox1_VisibleChanged(object sender, EventArgs e)
         {
             if (!pictureBox1.Visible)
@@ -104,6 +88,8 @@ namespace Get_Saved_Network_Passwords
 
         private void qRToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            pictureBox1.Image?.Dispose();
+
             string SSID = (string)dgvNetworkProfiles.CurrentRow!.Cells[0].Value!;
 
             SSID = SSID.Trim();
@@ -111,7 +97,20 @@ namespace Get_Saved_Network_Passwords
             NetworkProfile profile = Network.GetNetworkProfile(SSID);
 
             pictureBox1.Image = QR.GenerateQRImage(profile);
+
+            panel1.Size = ClientSize;
+            panel1.Location = dgvNetworkProfiles.Location;
+
             panel1.Show();
+        }
+
+        private void contextMenuStrip1_Opening(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            int columnIndex = dgvNetworkProfiles.CurrentCell!.ColumnIndex;
+
+            e.Cancel = columnIndex != 0 && columnIndex != 1;
+
+            qRToolStripMenuItem.Visible = !(columnIndex == 1);
         }
     }
 
@@ -122,7 +121,6 @@ namespace Get_Saved_Network_Passwords
         public string? Encryption { get; set; }
 
         public bool hidden { get; set; }
-
         public string Hidden { get { return hidden.ToString(); } }
 
         public NetworkProfile(){}
@@ -138,24 +136,24 @@ namespace Get_Saved_Network_Passwords
 
     public class Network
     {
-        static string AllProfilesCommand = "netsh wlan show profiles";
+        static string AllProfilesCommand = "wlan show profiles";
 
-        static string SpecificProfileCommand(string ProfileName)
+        static string GetProfileCommand(string ProfileName)
         {
-            return $"netsh wlan show profile name=\"{ProfileName}\" key=clear";
+            return $"wlan show profile name=\"{ProfileName.Trim()}\" key=clear";
         }
-
 
         static string RunCmd(string command)
         {
             var psi = new ProcessStartInfo
             {
-                FileName = "cmd.exe",
-                Arguments = "/c " + command,
+                FileName = "netsh.exe",
+                Arguments = command,
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,
                 UseShellExecute = false,
-                CreateNoWindow = true
+                CreateNoWindow = true,
+                WindowStyle = ProcessWindowStyle.Hidden
             };
 
             using (var process = new Process { StartInfo = psi })
@@ -204,7 +202,7 @@ namespace Get_Saved_Network_Passwords
                 SSID = ssid
             };
 
-            string command = SpecificProfileCommand(ssid);
+            string command = GetProfileCommand(ssid);
             string[] lines = RunCmd(command).Split('\n');
 
             foreach (string line in lines)

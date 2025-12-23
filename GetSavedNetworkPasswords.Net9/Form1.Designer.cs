@@ -62,7 +62,6 @@
             dgvNetworkProfiles.RowTemplate.Height = 24;
             dgvNetworkProfiles.Size = new Size(581, 668);
             dgvNetworkProfiles.TabIndex = 0;
-            dgvNetworkProfiles.CellDoubleClick += dgvNetworkProfiles_CellDoubleClick;
             // 
             // contextMenuStrip1
             // 
@@ -71,6 +70,7 @@
             contextMenuStrip1.Items.AddRange(new ToolStripItem[] { copyToolStripMenuItem, qRToolStripMenuItem });
             contextMenuStrip1.Name = "contextMenuStrip1";
             contextMenuStrip1.Size = new Size(144, 76);
+            contextMenuStrip1.Opening += contextMenuStrip1_Opening;
             // 
             // copyToolStripMenuItem
             // 
@@ -89,9 +89,11 @@
             // pictureBox1
             // 
             pictureBox1.BackColor = Color.Black;
-            pictureBox1.Location = new Point(3, 49);
+            pictureBox1.BackgroundImageLayout = ImageLayout.Zoom;
+            pictureBox1.Dock = DockStyle.Fill;
+            pictureBox1.Location = new Point(0, 0);
             pictureBox1.Name = "pictureBox1";
-            pictureBox1.Size = new Size(315, 315);
+            pictureBox1.Size = new Size(324, 367);
             pictureBox1.SizeMode = PictureBoxSizeMode.Zoom;
             pictureBox1.TabIndex = 1;
             pictureBox1.TabStop = false;
@@ -99,6 +101,7 @@
             // 
             // button1
             // 
+            button1.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             button1.AutoSize = true;
             button1.BackColor = Color.Red;
             button1.Font = new Font("Segoe UI", 14F);
@@ -133,6 +136,7 @@
             FormBorderStyle = FormBorderStyle.Fixed3D;
             Icon = (Icon)resources.GetObject("$this.Icon");
             Margin = new Padding(3, 4, 3, 4);
+            MaximizeBox = false;
             Name = "Form1";
             Text = "Network Profiles";
             Load += Form1_Load;
