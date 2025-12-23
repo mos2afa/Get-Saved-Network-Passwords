@@ -1,15 +1,5 @@
-﻿using Microsoft.VisualBasic;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
+﻿using QRCoder;
 using System.Diagnostics;
-using System.Drawing;
-using System.Linq;
-using System.Runtime;
-using System.Runtime.InteropServices.JavaScript;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace Get_Saved_Network_Passwords
@@ -23,18 +13,24 @@ namespace Get_Saved_Network_Passwords
 
         private void Form1_Load(object sender, EventArgs e)
         {
+            List<NetworkProfile> profiles = Network.GetAllNetworkProfiles();
+            dgvNetworkProfiles.DataSource = profiles;
+
+            CustomizeDataGridView();
+        }
+
+        private void CustomizeDataGridView()
+        {
             dgvNetworkProfiles.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
             dgvNetworkProfiles.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells;
-
-            List<Network.Profile> profiles = Network.GetNetworkProfiles();
-            dgvNetworkProfiles.DataSource = profiles;
 
             dgvNetworkProfiles.RowHeadersVisible = false;
             dgvNetworkProfiles.EnableHeadersVisualStyles = false;
 
+            dgvNetworkProfiles.Columns[3].Visible = false;
+
 
             dgvNetworkProfiles.Font = new Font(dgvNetworkProfiles.Font.FontFamily, 20);
-
 
             dgvNetworkProfiles.GridColor = BackColor;
             dgvNetworkProfiles.ForeColor = Color.DodgerBlue;
@@ -56,6 +52,8 @@ namespace Get_Saved_Network_Passwords
             dgvNetworkProfiles.RowsDefaultCellStyle.BackColor = BackColor;
             dgvNetworkProfiles.AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(1, 3, 70);
 
+            ClientSize = new Size(dgvNetworkProfiles.PreferredSize.Width, ClientSize.Height);
+
             dgvNetworkProfiles.ClearSelection();
         }
 
@@ -68,17 +66,73 @@ namespace Get_Saved_Network_Passwords
         {
             if (e.RowIndex < 0) return; // header
 
-            if (e.ColumnIndex == 0) return;
-        
-            string Password = (string)dgvNetworkProfiles.Rows[e.RowIndex].Cells[e.ColumnIndex].Value!;
+            if (e.ColumnIndex == 0) return;// name
 
-            Password = Password.Replace("\r","");
+            string SSID = (string)dgvNetworkProfiles.Rows[e.RowIndex].Cells[0].Value!;
 
-            if(!string.IsNullOrEmpty(Password))
-            { 
-                Clipboard.SetText( Password);
-                MessageBox.Show("Password Copied To Clipboard", "Success");
+            SSID = SSID.Trim();
+
+            NetworkProfile profile = Network.GetNetworkProfile(SSID);
+
+            pictureBox1.Image = QR.GenerateQRImage(profile);
+            panel1.Show();
+        }
+
+        private void pictureBox1_VisibleChanged(object sender, EventArgs e)
+        {
+            if (!pictureBox1.Visible)
+                pictureBox1.Image?.Dispose();
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            panel1.Hide();
+        }
+
+        private void copyToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            string Password = (string)dgvNetworkProfiles!.CurrentCell!.Value!;
+
+            Password = Password.Trim();
+
+            if (!string.IsNullOrEmpty(Password))
+            {
+                Clipboard.SetText(Password);
+                MessageBox.Show("Copied To Clipboard", "Success");
             }
+        }
+
+        private void qRToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            string SSID = (string)dgvNetworkProfiles.CurrentRow!.Cells[0].Value!;
+
+            SSID = SSID.Trim();
+
+            NetworkProfile profile = Network.GetNetworkProfile(SSID);
+
+            pictureBox1.Image = QR.GenerateQRImage(profile);
+            panel1.Show();
+        }
+    }
+
+    public class NetworkProfile
+    {
+        public string? SSID { get; set; }
+        public string? Password { get; set; }
+        public string? Encryption { get; set; }
+
+        public bool hidden { get; set; }
+
+        public string Hidden { get { return hidden.ToString(); } }
+
+        public NetworkProfile(){}
+
+        public NetworkProfile(string ssid,string password,string encryption ,bool hidden) 
+        {
+            this.SSID = ssid;
+            this.Password = password;
+            this.Encryption = encryption;
+            this.hidden = hidden;
         }
     }
 
@@ -86,7 +140,7 @@ namespace Get_Saved_Network_Passwords
     {
         static string AllProfilesCommand = "netsh wlan show profiles";
 
-        static string SpecificPasswordCommand(string ProfileName)
+        static string SpecificProfileCommand(string ProfileName)
         {
             return $"netsh wlan show profile name=\"{ProfileName}\" key=clear";
         }
@@ -120,14 +174,6 @@ namespace Get_Saved_Network_Passwords
             }
         }
 
-
-        public class Profile
-        {
-            public string? Name { get; set; }
-            public string? Password { get; set; }
-        }
-
-
         static List<string> GetProfilesNames()
         {
             List<string> names = new List<string>();
@@ -145,39 +191,57 @@ namespace Get_Saved_Network_Passwords
             return names;
         }
 
-        static string GetProfilePassword(string profileName)
+        private static string GetValueAfterColon(string line)
         {
-            string Password = "";
+            int index = line.IndexOf(':');
+            return index >= 0 ? line[(index + 1)..].Trim() : string.Empty;
+        }
 
-            string Command = SpecificPasswordCommand(profileName);
-            string[] Result = RunCmd(Command).Split('\n');
-
-            foreach (string Name in Result)
+        public static NetworkProfile GetNetworkProfile(string ssid)
+        {
+            NetworkProfile profile = new NetworkProfile
             {
-                if (Name.Contains("Key Content"))
-                {
-                    int nameStartIndex = Name.IndexOf(':') + 2;
+                SSID = ssid
+            };
 
-                    Password = Name.Substring(nameStartIndex);
+            string command = SpecificProfileCommand(ssid);
+            string[] lines = RunCmd(command).Split('\n');
+
+            foreach (string line in lines)
+            {
+                if (line.Contains("Key Content"))
+                {
+                    profile.Password = GetValueAfterColon(line);
+                }
+                else if (line.Contains("Authentication"))
+                {
+                    profile.Encryption = GetValueAfterColon(line);
+                }
+                else if (line.Contains("Network broadcast"))
+                {
+                    profile.hidden = line.Contains("Connect even");
                 }
             }
 
-            return Password;
+            return profile;
         }
 
-        public static List<Profile> GetNetworkProfiles()
+
+        public static List<NetworkProfile> GetAllNetworkProfiles()
         {
-            List<Profile> profiles = new List<Profile>(); 
-            
-            foreach(string name in GetProfilesNames())
-            {
-                Profile profile = new Profile();
+            List<NetworkProfile> profiles = new List<NetworkProfile>();
 
-                profile.Name = name;
-                profile.Password = GetProfilePassword(name);
+#if DEBUG
+            Stopwatch stopwatch = new Stopwatch();
+            stopwatch.Start();
+#endif
 
-                profiles.Add(profile);
-            }
+            GetProfilesNames().AsParallel().ForAll(name => profiles.Add(GetNetworkProfile(name)));
+
+#if DEBUG
+            stopwatch.Stop();
+            MessageBox.Show(stopwatch.Elapsed.ToString());
+#endif
 
             return profiles;
         }
@@ -185,4 +249,20 @@ namespace Get_Saved_Network_Passwords
     }
 
 
+
+    class QR
+    {
+        public static Bitmap GenerateQRImage(NetworkProfile networkProfile)
+        {
+            string wifiString = $"WIFI:T:{networkProfile.Encryption};S:{networkProfile.SSID};P:{networkProfile.Password};H:{networkProfile.hidden.ToString().ToLower()};;";
+
+            var qrGenerator = new QRCodeGenerator();
+            var qrData = qrGenerator.CreateQrCode(wifiString, QRCodeGenerator.ECCLevel.M);
+            var qrCode = new QRCode(qrData);
+
+            Bitmap qrImage = qrCode.GetGraphic(20);
+
+            return qrImage;
+        }
+    }
 }
