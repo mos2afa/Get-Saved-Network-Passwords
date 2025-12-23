@@ -51,6 +51,7 @@
             dgvNetworkProfiles.RowTemplate.Height = 24;
             dgvNetworkProfiles.Size = new Size(581, 668);
             dgvNetworkProfiles.TabIndex = 0;
+            dgvNetworkProfiles.CellDoubleClick += dgvNetworkProfiles_CellDoubleClick;
             // 
             // Form1
             // 
@@ -66,6 +67,7 @@
             Name = "Form1";
             Text = "Network Profiles";
             Load += Form1_Load;
+            Shown += Form1_Shown;
             ((System.ComponentModel.ISupportInitialize)dgvNetworkProfiles).EndInit();
             ResumeLayout(false);
 

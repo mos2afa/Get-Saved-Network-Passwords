@@ -34,7 +34,7 @@ namespace Get_Saved_Network_Passwords
 
 
             dgvNetworkProfiles.Font = new Font(dgvNetworkProfiles.Font.FontFamily, 20);
-            
+
 
             dgvNetworkProfiles.GridColor = BackColor;
             dgvNetworkProfiles.ForeColor = Color.DodgerBlue;
@@ -57,6 +57,28 @@ namespace Get_Saved_Network_Passwords
             dgvNetworkProfiles.AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(1, 3, 70);
 
             dgvNetworkProfiles.ClearSelection();
+        }
+
+        private void Form1_Shown(object sender, EventArgs e)
+        {
+            this.Activate();
+        }
+
+        private void dgvNetworkProfiles_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
+        {
+            if (e.RowIndex < 0) return; // header
+
+            if (e.ColumnIndex == 0) return;
+        
+            string Password = (string)dgvNetworkProfiles.Rows[e.RowIndex].Cells[e.ColumnIndex].Value!;
+
+            Password = Password.Replace("\r","");
+
+            if(!string.IsNullOrEmpty(Password))
+            { 
+                Clipboard.SetText( Password);
+                MessageBox.Show("Password Copied To Clipboard", "Success");
+            }
         }
     }
 
